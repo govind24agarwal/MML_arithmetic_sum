@@ -27,6 +27,20 @@ class MLP(object):
             weights.append(w)
         self.weights = weights
 
+        # save activations per layer
+        activations = []
+        for i in range(len(layers)):
+            a = np.zeros(layers[i])
+            activations.append(a)
+        self.activations = activations
+
+        # save derivatives per layer
+        derivatives = []
+        for i in range(len(layers)-1):
+            d = np.zeros((layers[i], layers[i+1]))
+            derivatives.append(d)
+        self.derivatives = derivatives
+
     def forward_propagate(self, inputs):
         """Method to compute forward propagationof thenetwork based on input signals
         Args:
@@ -35,13 +49,16 @@ class MLP(object):
             activations (ndArray): Output Values
         """
         activations = inputs
+        self.activations[0] = inputs
 
         # ittiratethrough network layers
-        for w in self.weights:
+        for i, w in enumerate(self.weights):
             # calculate  dot product
             net_inputs = np.dot(activations, w)
             # apply sigmoid function
             activations = self._sigmoid(net_inputs)
+            # save the activations for back propogation
+            self.activations[i+1] = activations
 
         return activations
 
