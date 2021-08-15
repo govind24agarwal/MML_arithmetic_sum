@@ -59,8 +59,31 @@ class MLP(object):
             activations = self._sigmoid(net_inputs)
             # save the activations for back propogation
             self.activations[i+1] = activations
-
         return activations
+
+    def back_propagate(self, error, verbose=False):
+        """Backpropogate an errorsignal
+
+        Args:
+            error (ndarray): The error to backdrop
+
+        Returns:
+            error (ndarray): The final error of the input
+        """
+        for i in reversed(range(len(self.derivatives))):
+            activations = self.activations[i+1]
+            delta = error * self._sigmoid_derivative(activations)
+            delta_reshaped = delta.reshape(delta.shape[0], -1).T
+            current_activations = self.activations[i]
+            current_activations = current_activations.reshape(
+                current_activations.shape[0], -1)
+            self.derivatives[i] = np.dot(current_activations, delta_reshaped)
+            error = np.dot(delta, self.weights[i].T)
+
+            if(verbose):
+                print("Derivatives for W{}: {}".format(i, self.derivatives[i]))
+
+        return error
 
     def _sigmoid(self, x):
         """Sigmoid activation function
@@ -73,11 +96,20 @@ class MLP(object):
         y = 1.0/(1 + np.exp(-x))
         return y
 
+    def _sigmoid_derivative(self, x):
+        """Sigmoid derivative function
+        Args:
+            x (float): Value to be processed (Sigmoid of some a -> s[a])
+        Returns:
+            y (float): Output (Derivative of sigmoid of a -> s'[a])
+        """
+        return x * (1.0-x)
+
 
 if __name__ == "__main__":
-    mlp = MLP()
-    inputs = np.random.rand(mlp.num_of_inputs)
+    mlp = MLP(2, [5], 1)
+    inputs = np.array([0.1, 0.2])
+    target = np.array([0.3])
     output = mlp.forward_propagate(inputs)
-
-    print("Network Inputs : {}".format(inputs))
-    print("Network Outputs : {}".format(output))
+    error = target - output
+    mlp.back_propagate(error, True)
