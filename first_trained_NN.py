@@ -1,4 +1,5 @@
 import numpy as np
+from random import random
 
 
 class MLP(object):
@@ -96,6 +97,25 @@ class MLP(object):
             derivatives = self.derivatives[i]
             weights += derivatives * learning_rate
 
+    def train(self, inputs, targets, epochs, learning_rate):
+        """Trains model running forward propagation and back propagation
+
+        Args:
+            inputs (ndarray) : X
+            targets (ndarray): Y
+            epochs (int): Number of times we want to train the network for
+            learning_rate (float): step to apply to gradient descent
+        """
+        for i in range(epochs):
+            sum_error = 0
+            for input, target in zip(inputs, targets):
+                output = self.forward_propagate(input)
+                error = target-output
+                self.back_propagate(error)
+                self.gradient_descent(learning_rate)
+                sum_error += self._mse(target, output)
+            print("Error at {} epoch : {}".format(sum_error/len(inputs), i+1))
+
     def _sigmoid(self, x):
         """Sigmoid activation function
         Args:
@@ -116,11 +136,18 @@ class MLP(object):
         """
         return x * (1.0-x)
 
+    def _mse(self, target, output):
+        """Mean squared error loss function
+
+        Args:
+            target (ndarray): The ground trut
+            output (ndarray): The predicted value
+
+        Returns:
+            (float): Output
+        """
+        return np.average((target-output)**2)
+
 
 if __name__ == "__main__":
-    mlp = MLP(2, [5], 1)
-    inputs = np.array([0.1, 0.2])
-    target = np.array([0.3])
-    output = mlp.forward_propagate(inputs)
-    error = target - output
-    mlp.back_propagate(error, True)
+    print("Yello")
