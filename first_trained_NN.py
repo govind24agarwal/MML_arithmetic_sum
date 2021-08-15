@@ -85,6 +85,17 @@ class MLP(object):
 
         return error
 
+    def gradient_descent(self, learning_rate=1):
+        """Learns by descending the  gradient
+        Args:
+            learning_rate (float, optional): How fast to learn. Defaults to 1.
+        """
+        # update the weights  by stepping down the gradient
+        for i in range(len(self.weights)):
+            weights = self.weights[i]
+            derivatives = self.derivatives[i]
+            weights += derivatives * learning_rate
+
     def _sigmoid(self, x):
         """Sigmoid activation function
         Args:
